@@ -6,14 +6,21 @@ import time
 import numpy as np
 import screen_brightness_control as sbc
 from math import hypot
+import alsaaudio
+
+pyautogui.FAILSAFE = False
+
+setVolume = alsaaudio.Mixer()
+
 
 #variables
 buttonPressed = False
 buttonDelay = 10
 buttonCount = 0
 gestureThreshold = 500
-width, height = 1200, 720
-volume = 50
+width, height = 1200, 720 
+brightness = 50
+volume_level = 50
 
 
 cap = cv2.VideoCapture(0)
@@ -66,12 +73,26 @@ while True:
             buttonPressed = True
 
         if fingers == [0, 1, 0, 0, 1]: #Brightness Increase
-            volume = volume+5
-            sbc.set_brightness(volume)
+            brightness = brightness+5
+            sbc.set_brightness(brightness)
 
         if fingers == [1, 0, 0, 0, 1]: #Brightness Decrease
-            volume = volume-5
-            sbc.set_brightness(volume)
+            brightness = brightness-5
+            sbc.set_brightness(brightness)
+        
+        if fingers == [0, 1, 1, 1, 0]: #Volume Increase    
+            volume_level = volume_level+5
+            if(volume_level<=100 and volume_level>=0):
+               setVolume.setvolume(volume_level)
+            else:
+                volume_level = 100
+
+        if fingers == [0, 1, 1, 1, 1]: #Volume Decrease
+            volume_level = volume_level-5
+            if(volume_level>=0 and volume_level<=100):
+               setVolume.setvolume(volume_level)
+            else: 
+                volume_level = 0
 
         if fingers == [0, 1, 1, 0, 0]: #AI Virtual Mouse
             hands = output.multi_hand_landmarks
